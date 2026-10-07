@@ -194,26 +194,29 @@ const I18N = {
     time: "Tiempo", speed: "Velocidad al caminar",
     speed_note: 'De 0,8 a 1,8 m/s, el rango del metaestudio de <a href="https://www.mdpi.com/2818476" target="_blank" rel="noopener">Giannoulaki y Christoforou (2024)</a>.',
     steps: "Evitar escaleras", slope: "Tener en cuenta las cuestas", avoid_steep: g => `Evitar cuestas de más del ${g} %`, show_steep: g => `Cuestas de más del ${g} %`,
-    slope_note: "Cuesta arriba se anda más despacio (función de Tobler): un 16 % más lento con una pendiente del 5 % y un 30 % con una del 10 %. El 6 % es la pendiente máxima de un itinerario peatonal accesible según la Orden TMA/851/2021.",
+    slope_note: "Cuesta arriba se anda más despacio (función de Tobler): un 16 % más lento con una pendiente del 5 % y un 30 % con una del 10 %. El 6 % es el límite general de un itinerario peatonal accesible (Orden TMA/851/2021); la norma admite rampas más empinadas en ciertas condiciones, así que el filtro no comprueba si una calle cumple la norma.",
     about_slope: 'Las cuestas salen del modelo digital del terreno MDT05 del <a href="https://www.ign.es" target="_blank" rel="noopener">IGN</a> (CC BY 4.0 scne.es), con la altura de cada cruce. La pendiente de un tramo es el desnivel entre sus dos extremos dividido entre su longitud (mínimo 20 m), así que una calle que sube y baja dentro de la misma manzana parece más llana, y junto a algunos puentes puede haber pequeños errores.',
     about_metro: "En las estaciones de Metro se cuenta la llegada a cualquiera de sus bocas, no al centro de la estación. Si evitas escaleras, una estación accesible solo cuenta si llegas a una boca etiquetada como accesible (con ascensor) en OpenStreetMap.",
     sty: ["", "Metro", "Cercanías", "Metro Ligero"], sty_short: ["", "M", "C", "ML"], share: "Compartir esta vista", copy: "Copiar enlace", copied: "Enlace copiado.", copy_fail: "Copia la dirección de la barra del navegador.",
     show: "Mostrar en el mapa", show_am: "Servicios", show_st: "Estaciones", show_bus: "Paradas de bus", show_bn: "Bancos", show_steps: "Escaleras",
-    cats: ["Alimentación", "Salud", "Educación", "Parques y juegos", "Cafés y restaurantes", "Bancos", "Estaciones", "Paradas de bus"],
+    cats: ["Alimentación", "Salud", "Educación", "Zonas verdes y de juego", "Cafés y restaurantes", "Bancos", "Estaciones", "Paradas de bus"],
     st_rows: ["Sin etiquetar", "Accesibles", "Acceso limitado", "No accesibles"],
     loading: "Cargando el mapa de Madrid…", preparing: "Preparando la red de calles…",
     load_err: "No se pudieron cargar los datos del mapa ({e}). Recarga la página.",
     outside: "Ese punto queda fuera de la zona cubierta (7 km alrededor de Sol) o lejos de cualquier calle. Prueba más cerca del centro.",
     locating: "Buscando tu ubicación…", loc_out: "Tu ubicación queda fuera de la zona cubierta (7 km alrededor de Sol).", loc_err: "No se pudo obtener tu ubicación.",
-    reach: "de calles al alcance", vs: "frente a", ref: "de referencia", of: "de",
-    amen_h: "Servicios al alcance", total: "Total", st_h: "Estaciones al alcance",
-    st_avoid: n => n === 1 ? "Evitando escaleras, solo 1 estación es utilizable sin escalones; el resto se ven atenuadas." : `Evitando escaleras, solo ${n} estaciones son utilizables sin escalones; el resto se ven atenuadas.`,
+    reach: "de red peatonal alcanzable", vs: "frente a", ref: "de referencia", of: "de",
+    reach_note: "Suma de los tramos de calle y camino a los que llegas; no es la distancia que recorres.",
+    amen_note: n => `${n} de 5 categorías presentes. Son elementos de OpenStreetMap, no lugares distintos: un parque con dos zonas infantiles cuenta tres veces y también cuentan jardines pequeños. El total lo dominan cafés y restaurantes, así que por sí solo no dice si una zona cubre lo básico.`,
+    st_usable: "utilizables sin escalones", pill_sf: "sin escalones",
+    amen_h: "Servicios al alcance", total: "Total de elementos", st_h: "Estaciones al alcance",
+    st_avoid: n => "Las que no puedes usar sin escalones se ven atenuadas en el mapa.",
     st_hint: "Marca «Evitar escaleras» para atenuar las estaciones no accesibles.",
     figs: "La primera cifra usa tus ajustes; «de» es la referencia.", elev_attr: 'Elevación: MDT05 CC BY 4.0 <a href="https://www.scne.es" target="_blank" rel="noopener">scne.es</a>',
     kinds: ["estación", "parque", "calle"], no_results: "Sin resultados", pill_am: "servicios", pill_st: "estaciones", pill_st1: "estación",
     limits: d => `No incluye transporte público, bordillos, estado de las aceras ni iluminación. Zona cubierta: 7 km alrededor de Sol. Datos de OpenStreetMap del ${d}; pueden estar incompletos. Una estación cuenta como accesible solo si está etiquetada wheelchair=yes.`,
     about: "Cómo funciona",
-    about_1: "Todo se calcula en tu navegador: la red peatonal de Madrid viaja con la página y el recorrido se calcula con el algoritmo de Dijkstra, sin servidor. Cada tramo cuesta su longitud dividida entre tu velocidad.",
+    about_1: "Es una herramienta exploratoria para ver cómo cambia el acceso a pie según la velocidad y algunas barreras, no un estudio de accesibilidad. Todo se calcula en tu navegador: la red peatonal de Madrid viaja con la página y el recorrido se calcula con el algoritmo de Dijkstra, sin servidor. Cada tramo cuesta su longitud dividida entre tu velocidad.",
     about_2: "«Evitar escaleras» solo excluye los tramos de escaleras mapeados: no tiene en cuenta bordillos, cuestas ni el estado de las aceras, así que no equivale a una ruta en silla de ruedas. Los servicios se asignan al cruce más cercano y los parques cuentan como un solo punto, así que los recuentos cerca del borde son aproximados.",
     about_3: 'Basado en <a href="https://github.com/martincantcode/15-minutes" target="_blank" rel="noopener">«15 minutes. For whom?»</a> de Martin Bangratz (MIT), en la idea de la ciudad de 15 minutos de Carlos Moreno. Datos © colaboradores de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>, licencia ODbL.',
     code: url => `Código y datos: <a href="${url}" target="_blank" rel="noopener">${url.replace("https://", "")}</a>`,
@@ -230,26 +233,29 @@ const I18N = {
     time: "Time", speed: "Walking speed",
     speed_note: 'From 0.8 to 1.8 m/s, the range in the meta-study by <a href="https://www.mdpi.com/2818476" target="_blank" rel="noopener">Giannoulaki &amp; Christoforou (2024)</a>.',
     steps: "Avoid stairs", slope: "Take slopes into account", avoid_steep: g => `Avoid slopes steeper than ${g}%`, show_steep: g => `Slopes steeper than ${g}%`,
-    slope_note: "Walking uphill is slower (Tobler’s hiking function): 16% slower on a 5% slope and 30% slower on 10%. 6% is the maximum slope of an accessible pedestrian route under Spanish regulations (Orden TMA/851/2021).",
+    slope_note: "Walking uphill is slower (Tobler’s hiking function): 16% slower on a 5% slope and 30% slower on 10%. 6% is the general limit for an accessible pedestrian route under Spanish rules (Orden TMA/851/2021); steeper ramps are allowed under certain conditions, so the filter does not check compliance.",
     about_slope: 'Slopes come from the MDT05 digital terrain model by <a href="https://www.ign.es" target="_blank" rel="noopener">IGN Spain</a> (CC BY 4.0 scne.es), with the height of each intersection. A segment’s slope is the height difference between its ends divided by its length (at least 20 m), so a street that goes up and down within one block looks flatter, and there can be small errors next to some bridges.',
     about_metro: "For Metro stations, reaching any of its entrances counts, not the centre of the station. When avoiding stairs, a step-free station only counts if you reach an entrance that OpenStreetMap tags as accessible (with a lift).",
     sty: ["", "Metro", "Cercanías", "Metro Ligero"], sty_short: ["", "M", "C", "ML"], share: "Share this view", copy: "Copy link", copied: "Link copied.", copy_fail: "Copy the address from your browser's address bar.",
     show: "Show on the map", show_am: "Amenities", show_st: "Stations", show_bus: "Bus stops", show_bn: "Benches", show_steps: "Stairs",
-    cats: ["Groceries", "Health", "Education", "Parks & play", "Cafés & eating", "Benches", "Stations", "Bus stops"],
+    cats: ["Groceries", "Health", "Education", "Green spaces & play", "Cafés & eating", "Benches", "Stations", "Bus stops"],
     st_rows: ["Not tagged", "Step-free", "Limited access", "Not step-free"],
     loading: "Loading the map of Madrid…", preparing: "Preparing the street network…",
     load_err: "Could not load the map data ({e}). Please reload the page.",
     outside: "That point is outside the covered area (7 km around Puerta del Sol) or far from any street. Try closer to the centre.",
     locating: "Finding your location…", loc_out: "Your location is outside the covered area (7 km around Puerta del Sol).", loc_err: "Could not get your location.",
-    reach: "of streets within reach", vs: "vs.", ref: "reference", of: "of",
-    amen_h: "Amenities within reach", total: "Total", st_h: "Stations within reach",
-    st_avoid: n => n === 1 ? "Avoiding stairs, only 1 station is usable step-free; the others are faded." : `Avoiding stairs, only ${n} stations are usable step-free; the others are faded.`,
+    reach: "of walkable network within reach", vs: "vs.", ref: "reference", of: "of",
+    reach_note: "Sum of the street and path segments you can reach, not the distance you walk.",
+    amen_note: n => `${n} of 5 categories present. These are OpenStreetMap items, not distinct places: a park with two playgrounds counts three times and small gardens count too. Cafés and restaurants dominate the total, so on its own it does not tell whether an area covers the basics.`,
+    st_usable: "usable step-free", pill_sf: "step-free",
+    amen_h: "Amenities within reach", total: "Total items", st_h: "Stations within reach",
+    st_avoid: n => "Stations you cannot use step-free are faded on the map.",
     st_hint: "Tick “Avoid stairs” to fade stations that are not step-free.",
     figs: "The first number uses your settings; “of” is the reference.", elev_attr: 'Elevation: MDT05 CC BY 4.0 <a href="https://www.scne.es" target="_blank" rel="noopener">scne.es</a>',
     kinds: ["station", "park", "street"], no_results: "No results", pill_am: "amenities", pill_st: "stations", pill_st1: "station",
     limits: d => `Not included: public transport, kerbs, pavement condition, lighting. Covered area: 7 km around Puerta del Sol. OpenStreetMap data from ${d}; may be incomplete. A station counts as step-free only if tagged wheelchair=yes.`,
     about: "How it works",
-    about_1: "Everything runs in your browser: Madrid's walking network ships with the page and reach is computed with Dijkstra's algorithm, no server involved. Each street segment costs its length divided by your speed.",
+    about_1: "This is an exploratory tool to see how walking access changes with speed and some barriers, not an accessibility audit. Everything runs in your browser: Madrid's walking network ships with the page and reach is computed with Dijkstra's algorithm, no server involved. Each street segment costs its length divided by your speed.",
     about_2: "“Avoid stairs” only excludes mapped flights of steps: kerbs, slopes and pavement condition are not considered, so it is not a wheelchair route. Amenities are matched to the nearest intersection and parks count as single points, so counts near the edge are approximate.",
     about_3: 'Based on <a href="https://github.com/martincantcode/15-minutes" target="_blank" rel="noopener">“15 minutes. For whom?”</a> by Martin Bangratz (MIT), after Carlos Moreno’s 15-minute city. Data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors, ODbL.',
     code: url => `Code and data: <a href="${url}" target="_blank" rel="noopener">${url.replace("https://", "")}</a>`,
@@ -609,13 +615,15 @@ function showStats(rA, rR, cA, cR, stUsable, stA, stR, tyA, tyR) {
   const stRows = [1, 2, 3, 0].map(code => `<tr><td><span class="dot st" style="background:${STATION_COLORS[code]}"></span>${t("st_rows")[code]}</td><td>${stA[code]}</td><td class="ref">${of} ${stR[code]}</td></tr>`).join("");
   const sign = pct >= 0 ? "+" : "−";
   const nf = new Intl.NumberFormat(LANG === "es" ? "es-ES" : "en-GB");
-  $("pill").innerHTML = `<b>${km(rA.lengthM)} km</b>${pct ? ` <span class="d">${sign}${Math.abs(pct)} %</span>` : ""}<br>${nf.format(totA)} ${t("pill_am")} · ${cA[6]} ${t(cA[6] === 1 ? "pill_st1" : "pill_st")}`;
+  $("pill").innerHTML = `<b>${km(rA.lengthM)} km</b>${pct ? ` <span class="d">${sign}${Math.abs(pct)} %</span>` : ""}<br>${nf.format(totA)} ${t("pill_am")} · ${cA[6]} ${t(cA[6] === 1 ? "pill_st1" : "pill_st")}${state.avoid ? ` (${stUsable} ${t("pill_sf")})` : ""}`;
   $("stats").innerHTML = `
-    <p class="big"><b>${km(rA.lengthM)} km</b> ${t("reach")} <span class="note">(${sign}${Math.abs(pct)} % ${t("vs")} ${km(rR.lengthM)} km ${t("ref")})</span></p>
+    <p class="big" style="margin-bottom:2px"><b>${km(rA.lengthM)} km</b> ${t("reach")} <span class="note">(${sign}${Math.abs(pct)} % ${t("vs")} ${km(rR.lengthM)} km ${t("ref")})</span></p>
+    <p class="note" style="margin:0 0 12px">${t("reach_note")}</p>
     <h2>${t("amen_h")}</h2>
     <table>${amen.map(c => row(c, cats[c])).join("")}<tr><td><b>${t("total")}</b></td><td><b>${totA}</b></td><td class="ref">${of} ${totR}</td></tr>
     ${row(5, cats[5])}${row(7, cats[7])}</table>
-    <h2 style="margin-top:14px">${t("st_h")}: ${cA[6]} <span style="text-transform:none;letter-spacing:0">${of} ${cR[6]}</span></h2>
+    <p class="note" style="margin-top:6px">${t("amen_note")(amen.filter(c => cA[c] > 0).length)}</p>
+    <h2 style="margin-top:14px">${t("st_h")}: ${cA[6]} <span style="text-transform:none;letter-spacing:0">${of} ${cR[6]}</span>${state.avoid ? ` · ${t("st_usable")}: ${stUsable}` : ""}</h2>
     <p class="note" style="margin:0 0 4px">${[1, 2, 3].filter(k => tyR[k]).map(k => `${t("sty")[k]} ${tyA[k]} ${of} ${tyR[k]}`).join(" · ")}</p>
     <table>${stRows}</table>
     <p class="note" style="margin-top:6px">${state.avoid ? t("st_avoid")(stUsable) : t("st_hint")} ${t("figs")}</p>`;

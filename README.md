@@ -2,7 +2,7 @@
 
 ![Vista previa del mapa](og.png)
 
-Mapa interactivo que muestra hasta dónde llegas andando por Madrid en un tiempo dado, y cómo cambia según tu velocidad, si puedes usar escaleras y si tienes en cuenta las cuestas. Los mismos 15 minutos no llegan igual de lejos para todo el mundo.
+Herramienta exploratoria que muestra hasta dónde llegas andando por Madrid en un tiempo dado, y cómo cambia según tu velocidad, si puedes usar escaleras y si tienes en cuenta las cuestas. Los mismos 15 minutos no llegan igual de lejos para todo el mundo.
 
 **Pruébalo:** https://pablolamiquiz.github.io/15--minutos-madrid/
 
@@ -11,11 +11,11 @@ Mapa interactivo que muestra hasta dónde llegas andando por Madrid en un tiempo
 - Haz clic en el mapa, arrastra el punto o busca una calle, estación o parque.
 - Ajusta el tiempo (5 a 30 min) y la velocidad al caminar (0,8 a 1,8 m/s, el rango del metaestudio de [Giannoulaki y Christoforou, 2024](https://www.mdpi.com/2818476)).
 - Marca «Evitar escaleras» para quitar los tramos de escaleras mapeados, y «Escaleras» para verlos en rojo en el mapa.
-- **Cuestas**: «Tener en cuenta las cuestas» hace que subir sea más lento según la función de Tobler (un 16 % más lento con un 5 % de pendiente, un 30 % con un 10 %). «Evitar cuestas de más del X %» quita los tramos más empinados; el 6 % es el máximo de un itinerario peatonal accesible según la Orden TMA/851/2021. «Cuestas de más del X %» las marca en morado.
-- **Metro**: las estaciones llevan una letra (M, C, ML) y en las de Metro cuenta la llegada a cualquiera de sus bocas. Si evitas escaleras, una estación accesible solo cuenta si llegas a una boca etiquetada como accesible (con ascensor).
+- **Cuestas** (nuevo en esta versión): «Tener en cuenta las cuestas» hace que subir sea más lento según la función de Tobler (un 16 % más lento con un 5 % de pendiente, un 30 % con un 10 %). «Evitar cuestas de más del X %» quita los tramos más empinados; el 6 % es el límite general de un itinerario peatonal accesible según la Orden TMA/851/2021 (la norma admite rampas más empinadas en ciertas condiciones, así que el filtro no comprueba el cumplimiento). «Cuestas de más del X %» las marca en morado.
+- **Metro** (nuevo): las estaciones llevan una letra (M, C, ML) y en las de Metro cuenta la llegada a cualquiera de sus bocas. Si evitas escaleras, una estación accesible solo cuenta si llegas a una boca etiquetada como accesible (con ascensor).
 - En color, las calles que alcanzas con tus ajustes; en gris, las que alcanzaría en el mismo tiempo alguien a 1,4 m/s que puede usar escaleras.
-- El panel cuenta servicios (alimentación, salud, educación, parques, cafés y restaurantes), bancos, paradas de bus y estaciones al alcance, y cuántas estaciones están etiquetadas como accesibles.
-- «Compartir esta vista» guarda el punto y los ajustes en la dirección.
+- El panel da los kilómetros de red peatonal alcanzable (la suma de los tramos a los que llegas, no la distancia que recorres) y cuenta servicios (alimentación, salud, educación, zonas verdes y de juego, cafés y restaurantes), bancos, paradas de bus y estaciones al alcance, distinguiendo las utilizables sin escalones. Los servicios son elementos de OpenStreetMap, no lugares distintos: en zonas verdes cuentan por separado parques, jardines pequeños y zonas infantiles, y el total lo dominan cafés y restaurantes.
+- «Compartir esta vista» guarda el punto y los ajustes en la dirección, así que el enlace abre exactamente lo que estabas viendo.
 - En español y en inglés.
 
 ## Cómo funciona

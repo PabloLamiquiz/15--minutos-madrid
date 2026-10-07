@@ -99,6 +99,9 @@
   .pill b { font-family: var(--f-display); font-size: 16px; }
   .pill .d { color: var(--muted); }
   .keyline { display: inline-block; width: 18px; height: 3px; background: #c1272d; }
+  .keyline.steep { background: #7b3fa0; }
+  .checks input[type=range] { width: 100%; margin: 2px 0 0; accent-color: var(--teal); }
+  body.noelev .slope { display: none !important; }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   @media (max-width: 760px) {
     body { flex-direction: column-reverse; height: 100dvh; }
@@ -134,7 +137,13 @@
     <input type="range" id="speed" min="0.8" max="1.8" step="0.05" value="1.4">
     <p class="note" data-t-html="speed_note"></p></div>
 
-  <div class="checks"><label><input type="checkbox" id="steps"> <span data-t="steps">Evitar escaleras</span></label></div>
+  <div class="checks">
+    <label><input type="checkbox" id="steps"> <span data-t="steps">Evitar escaleras</span></label>
+    <label class="slope"><input type="checkbox" id="slope"> <span data-t="slope">Tener en cuenta las cuestas</span></label>
+    <label class="slope"><input type="checkbox" id="avoidSteep"> <span id="steepLbl"></span></label>
+    <input class="slope" type="range" id="maxGrade" min="3" max="12" step="1" value="6" aria-label="%">
+    <p class="note slope" data-t-html="slope_note"></p>
+  </div>
 
   <div><div id="legend"></div><div id="legendLabels"><span>0 min</span><span id="legendEnd">15 min</span></div></div>
 
@@ -153,6 +162,7 @@
     <label><input type="checkbox" id="showBus"> <span data-t="show_bus">Paradas de bus</span></label>
     <label><input type="checkbox" id="showBn"> <span data-t="show_bn">Bancos</span></label>
     <label><input type="checkbox" id="showSteps"> <span data-t="show_steps">Escaleras</span> <span class="keyline" aria-hidden="true"></span></label>
+    <label class="slope"><input type="checkbox" id="showSteep"> <span id="showSteepLbl"></span> <span class="keyline steep" aria-hidden="true"></span></label>
   </div>
 
   <p class="note" id="limits"></p>
@@ -161,6 +171,8 @@
     <summary data-t="about">Cómo funciona</summary>
     <p data-t-html="about_1"></p>
     <p data-t-html="about_2"></p>
+    <p data-t-html="about_slope"></p>
+    <p data-t-html="about_metro"></p>
     <p data-t-html="about_3"></p>
     <p id="codeLink" hidden></p>
   </details>
@@ -177,11 +189,15 @@ const I18N = {
     t_min: "15 minutos.", t_who: "¿Para quién?",
     intro_click: "Haz clic en el mapa, arrastra el punto o busca una dirección.",
     intro_touch: "Toca el mapa, arrastra el punto o busca una dirección.",
-    intro_rest: " En color, las calles que alcanzas a pie con tus ajustes; en gris, las que alcanzaría en el mismo tiempo alguien a 1,4 m/s que puede usar escaleras.",
+    intro_rest: " En color, las calles que alcanzas a pie con tus ajustes; en gris, las que alcanzaría en el mismo tiempo alguien a 1,4 m/s que puede usar escaleras, sin contar las cuestas.",
     search_label: "Buscar", search_ph: "Calle, estación o parque", locate: "Mi ubicación",
     time: "Tiempo", speed: "Velocidad al caminar",
     speed_note: 'De 0,8 a 1,8 m/s, el rango del metaestudio de <a href="https://www.mdpi.com/2818476" target="_blank" rel="noopener">Giannoulaki y Christoforou (2024)</a>.',
-    steps: "Evitar escaleras", share: "Compartir esta vista", copy: "Copiar enlace", copied: "Enlace copiado.", copy_fail: "Copia la dirección de la barra del navegador.",
+    steps: "Evitar escaleras", slope: "Tener en cuenta las cuestas", avoid_steep: g => `Evitar cuestas de más del ${g} %`, show_steep: g => `Cuestas de más del ${g} %`,
+    slope_note: "Cuesta arriba se anda más despacio (función de Tobler): un 16 % más lento con una pendiente del 5 % y un 30 % con una del 10 %. El 6 % es la pendiente máxima de un itinerario peatonal accesible según la Orden TMA/851/2021.",
+    about_slope: 'Las cuestas salen del modelo digital del terreno MDT05 del <a href="https://www.ign.es" target="_blank" rel="noopener">IGN</a> (CC BY 4.0 scne.es), con la altura de cada cruce. La pendiente de un tramo es el desnivel entre sus dos extremos dividido entre su longitud (mínimo 20 m), así que una calle que sube y baja dentro de la misma manzana parece más llana, y junto a algunos puentes puede haber pequeños errores.',
+    about_metro: "En las estaciones de Metro se cuenta la llegada a cualquiera de sus bocas, no al centro de la estación. Si evitas escaleras, una estación accesible solo cuenta si llegas a una boca etiquetada como accesible (con ascensor) en OpenStreetMap.",
+    sty: ["", "Metro", "Cercanías", "Metro Ligero"], sty_short: ["", "M", "C", "ML"], share: "Compartir esta vista", copy: "Copiar enlace", copied: "Enlace copiado.", copy_fail: "Copia la dirección de la barra del navegador.",
     show: "Mostrar en el mapa", show_am: "Servicios", show_st: "Estaciones", show_bus: "Paradas de bus", show_bn: "Bancos", show_steps: "Escaleras",
     cats: ["Alimentación", "Salud", "Educación", "Parques y juegos", "Cafés y restaurantes", "Bancos", "Estaciones", "Paradas de bus"],
     st_rows: ["Sin etiquetar", "Accesibles", "Acceso limitado", "No accesibles"],
@@ -193,9 +209,9 @@ const I18N = {
     amen_h: "Servicios al alcance", total: "Total", st_h: "Estaciones al alcance",
     st_avoid: n => n === 1 ? "Evitando escaleras, solo 1 estación es utilizable sin escalones; el resto se ven atenuadas." : `Evitando escaleras, solo ${n} estaciones son utilizables sin escalones; el resto se ven atenuadas.`,
     st_hint: "Marca «Evitar escaleras» para atenuar las estaciones no accesibles.",
-    figs: "La primera cifra usa tus ajustes; «de» es la referencia.",
-    kinds: ["estación", "parque", "calle"], no_results: "Sin resultados", pill_am: "servicios", pill_st: "estaciones",
-    limits: d => `No incluye transporte público, cuestas ni iluminación. Zona cubierta: 7 km alrededor de Sol. Datos de OpenStreetMap del ${d}; pueden estar incompletos. Una estación cuenta como accesible solo si está etiquetada wheelchair=yes.`,
+    figs: "La primera cifra usa tus ajustes; «de» es la referencia.", elev_attr: 'Elevación: MDT05 CC BY 4.0 <a href="https://www.scne.es" target="_blank" rel="noopener">scne.es</a>',
+    kinds: ["estación", "parque", "calle"], no_results: "Sin resultados", pill_am: "servicios", pill_st: "estaciones", pill_st1: "estación",
+    limits: d => `No incluye transporte público, bordillos, estado de las aceras ni iluminación. Zona cubierta: 7 km alrededor de Sol. Datos de OpenStreetMap del ${d}; pueden estar incompletos. Una estación cuenta como accesible solo si está etiquetada wheelchair=yes.`,
     about: "Cómo funciona",
     about_1: "Todo se calcula en tu navegador: la red peatonal de Madrid viaja con la página y el recorrido se calcula con el algoritmo de Dijkstra, sin servidor. Cada tramo cuesta su longitud dividida entre tu velocidad.",
     about_2: "«Evitar escaleras» solo excluye los tramos de escaleras mapeados: no tiene en cuenta bordillos, cuestas ni el estado de las aceras, así que no equivale a una ruta en silla de ruedas. Los servicios se asignan al cruce más cercano y los parques cuentan como un solo punto, así que los recuentos cerca del borde son aproximados.",
@@ -209,11 +225,15 @@ const I18N = {
     t_min: "15 minutes.", t_who: "For whom?",
     intro_click: "Click the map, drag the dot or search for a place.",
     intro_touch: "Tap the map, drag the dot or search for a place.",
-    intro_rest: " Coloured streets are what you can reach on foot with your settings; grey streets are what someone at 1.4 m/s who can use stairs would reach in the same time.",
+    intro_rest: " Coloured streets are what you can reach on foot with your settings; grey streets are what someone at 1.4 m/s who can use stairs would reach in the same time, ignoring slopes.",
     search_label: "Search", search_ph: "Street, station or park", locate: "My location",
     time: "Time", speed: "Walking speed",
     speed_note: 'From 0.8 to 1.8 m/s, the range in the meta-study by <a href="https://www.mdpi.com/2818476" target="_blank" rel="noopener">Giannoulaki &amp; Christoforou (2024)</a>.',
-    steps: "Avoid stairs", share: "Share this view", copy: "Copy link", copied: "Link copied.", copy_fail: "Copy the address from your browser's address bar.",
+    steps: "Avoid stairs", slope: "Take slopes into account", avoid_steep: g => `Avoid slopes steeper than ${g}%`, show_steep: g => `Slopes steeper than ${g}%`,
+    slope_note: "Walking uphill is slower (Tobler’s hiking function): 16% slower on a 5% slope and 30% slower on 10%. 6% is the maximum slope of an accessible pedestrian route under Spanish regulations (Orden TMA/851/2021).",
+    about_slope: 'Slopes come from the MDT05 digital terrain model by <a href="https://www.ign.es" target="_blank" rel="noopener">IGN Spain</a> (CC BY 4.0 scne.es), with the height of each intersection. A segment’s slope is the height difference between its ends divided by its length (at least 20 m), so a street that goes up and down within one block looks flatter, and there can be small errors next to some bridges.',
+    about_metro: "For Metro stations, reaching any of its entrances counts, not the centre of the station. When avoiding stairs, a step-free station only counts if you reach an entrance that OpenStreetMap tags as accessible (with a lift).",
+    sty: ["", "Metro", "Cercanías", "Metro Ligero"], sty_short: ["", "M", "C", "ML"], share: "Share this view", copy: "Copy link", copied: "Link copied.", copy_fail: "Copy the address from your browser's address bar.",
     show: "Show on the map", show_am: "Amenities", show_st: "Stations", show_bus: "Bus stops", show_bn: "Benches", show_steps: "Stairs",
     cats: ["Groceries", "Health", "Education", "Parks & play", "Cafés & eating", "Benches", "Stations", "Bus stops"],
     st_rows: ["Not tagged", "Step-free", "Limited access", "Not step-free"],
@@ -225,9 +245,9 @@ const I18N = {
     amen_h: "Amenities within reach", total: "Total", st_h: "Stations within reach",
     st_avoid: n => n === 1 ? "Avoiding stairs, only 1 station is usable step-free; the others are faded." : `Avoiding stairs, only ${n} stations are usable step-free; the others are faded.`,
     st_hint: "Tick “Avoid stairs” to fade stations that are not step-free.",
-    figs: "The first number uses your settings; “of” is the reference.",
-    kinds: ["station", "park", "street"], no_results: "No results", pill_am: "amenities", pill_st: "stations",
-    limits: d => `Not included: public transport, slopes, lighting. Covered area: 7 km around Puerta del Sol. OpenStreetMap data from ${d}; may be incomplete. A station counts as step-free only if tagged wheelchair=yes.`,
+    figs: "The first number uses your settings; “of” is the reference.", elev_attr: 'Elevation: MDT05 CC BY 4.0 <a href="https://www.scne.es" target="_blank" rel="noopener">scne.es</a>',
+    kinds: ["station", "park", "street"], no_results: "No results", pill_am: "amenities", pill_st: "stations", pill_st1: "station",
+    limits: d => `Not included: public transport, kerbs, pavement condition, lighting. Covered area: 7 km around Puerta del Sol. OpenStreetMap data from ${d}; may be incomplete. A station counts as step-free only if tagged wheelchair=yes.`,
     about: "How it works",
     about_1: "Everything runs in your browser: Madrid's walking network ships with the page and reach is computed with Dijkstra's algorithm, no server involved. Each street segment costs its length divided by your speed.",
     about_2: "“Avoid stairs” only excludes mapped flights of steps: kerbs, slopes and pavement condition are not considered, so it is not a wheelchair route. Amenities are matched to the nearest intersection and parks count as single points, so counts near the edge are approximate.",
@@ -345,34 +365,66 @@ function visibleEdges(eg, x0, y0, x1, y1) {
   }
   return out;
 }
-function dijkstra(g, src, startSeconds, speed, avoidSteps, T) {
+// o = { speed (m/s), avoidSteps, slope (penalizar subidas), maxGrade (0 = sin límite; si no, fracción, p. ej. 0.06) }
+const MIN_GRADE_LEN = 20;   // m; los tramos más cortos usan esta longitud para que el ruido del MDT no invente rampas
+function blocked(g, e, o) {
+  if (g.eflag[e] & 1) return o.avoidSteps;                       // las escaleras dependen solo de su casilla
+  return o.maxGrade > 0 && g.egrade !== undefined && g.egrade[e] > o.maxGrade;
+}
+// función de Tobler relativa al llano: 5 % de subida = 16 % más lento, 10 % = 30 %; bajar suave no acelera, bajar fuerte frena
+const tobler = s => Math.min(1, Math.exp(-3.5 * (Math.abs(s + 0.05) - 0.05)));
+function edgeTime(g, e, fromLow, o) {
+  if (!(o.slope && g.erise)) return g.elen[e] / o.speed;
+  const s = (fromLow ? g.erise[e] : -g.erise[e]) / Math.max(g.elen[e], MIN_GRADE_LEN);
+  return g.elen[e] / (o.speed * tobler(s));
+}
+function addElevation(g, zdm) {   // Int16 en decímetros por nodo (-32768 = sin dato)
+  const z = new Float32Array(g.nN); for (let i = 0; i < g.nN; i++) z[i] = zdm[i] === -32768 ? NaN : zdm[i] / 10;
+  g.z = z; g.erise = new Float32Array(g.nE); g.egrade = new Float32Array(g.nE);
+  for (let e = 0; e < g.nE; e++) { const a = z[g.eu[e]], b = z[g.ev[e]], d = a === a && b === b ? b - a : 0; g.erise[e] = d; g.egrade[e] = Math.abs(d) / Math.max(g.elen[e], MIN_GRADE_LEN); }
+}
+// nodos a menos de `radius` m del punto, con su distancia en línea recta
+function nodesNear(g, grid, lon, lat, radius) {
+  const cosL = Math.cos(lat * Math.PI / 180), out = [], ring = Math.ceil(radius / (grid.cellLat * R_LAT)) + 1;
+  const cx = Math.floor((lon - grid.minLon) / grid.cellLon), cy = Math.floor((lat - grid.minLat) / grid.cellLat);
+  for (let y = cy - ring; y <= cy + ring; y++) for (let x = cx - ring; x <= cx + ring; x++) {
+    if (x < 0 || y < 0 || x >= grid.W || y >= grid.H) continue;
+    for (let i = grid.head[y * grid.W + x]; i !== -1; i = grid.next[i]) {
+      const dx = (g.lon[i] - lon) * cosL * R_LON, dy = (g.lat[i] - lat) * R_LAT, d = Math.sqrt(dx * dx + dy * dy);
+      if (d <= radius) out.push([i, d]);
+    }
+  }
+  return out;
+}
+function dijkstra(g, src, startSeconds, o, T) {   // src: un nodo o una lista de [nodo, distancia en m]
   const dist = new Float64Array(g.nN).fill(Infinity), ht = [], hn = [];
   const push = (t, n) => { let i = ht.length; ht.push(t); hn.push(n); while (i > 0) { const p = (i - 1) >> 1; if (ht[p] <= t) break; ht[i] = ht[p]; hn[i] = hn[p]; i = p; } ht[i] = t; hn[i] = n; };
   const pop = () => { const lt = ht.pop(), ln = hn.pop(), L = ht.length; if (!L) return; let i = 0;
     while (true) { let c = 2 * i + 1; if (c >= L) break; if (c + 1 < L && ht[c + 1] < ht[c]) c++; if (ht[c] >= lt) break; ht[i] = ht[c]; hn[i] = hn[c]; i = c; }
     ht[i] = lt; hn[i] = ln; };
-  dist[src] = startSeconds; push(startSeconds, src);
+  if (Array.isArray(src)) { for (const [n, d] of src) { const t0 = d / o.speed; if (t0 < dist[n]) { dist[n] = t0; push(t0, n); } } }
+  else { dist[src] = startSeconds; push(startSeconds, src); }
   while (ht.length) {
     const t = ht[0], n = hn[0]; pop();
     if (t > dist[n]) continue;
     if (t > T) break;
     for (let k = g.adjStart[n]; k < g.adjStart[n + 1]; k++) {
       const e = g.adjEdge[k];
-      if (avoidSteps && (g.eflag[e] & 1)) continue;
-      const m = g.eu[e] === n ? g.ev[e] : g.eu[e], nt = t + g.elen[e] / speed;
+      if (blocked(g, e, o)) continue;
+      const fromLow = g.eu[e] === n, m = fromLow ? g.ev[e] : g.eu[e], nt = t + edgeTime(g, e, fromLow, o);
       if (nt < dist[m]) { dist[m] = nt; push(nt, m); }
     }
   }
   return dist;
 }
-function collectReach(g, dist, T, speed, avoidSteps) {
+function collectReach(g, dist, T, o) {
   const items = []; let lengthM = 0;
   for (let e = 0; e < g.nE; e++) {
-    if (avoidSteps && (g.eflag[e] & 1)) continue;
+    if (blocked(g, e, o)) continue;
     const du = dist[g.eu[e]], dv = dist[g.ev[e]], fromLow = du <= dv, a = fromLow ? du : dv, b = fromLow ? dv : du;
     if (a > T) continue;
     let frac = 1, tt;
-    if (b <= T) tt = b / T; else { frac = Math.min(1, (T - a) / (g.elen[e] / speed)); tt = 1; }
+    if (b <= T) tt = b / T; else { frac = Math.min(1, (T - a) / edgeTime(g, e, fromLow, o)); tt = 1; }
     items.push({ e, fromLow, frac, tt }); lengthM += g.elen[e] * frac;
   }
   return { items, lengthM };
@@ -449,6 +501,7 @@ const marker = L.marker(origin, { draggable: true, icon: pinIcon(), keyboard: fa
 const Pill = L.Control.extend({ onAdd() { const d = L.DomUtil.create("div", "pill"); d.id = "pill"; d.setAttribute("aria-hidden", "true"); return d; } });
 new Pill({ position: "topright" }).addTo(map);
 
+let ENT = { n: 0, byStation: new Map() };
 let G = null, grid = null, EG = null, X = null, POI = null, state = null, queued = false, fitNext = false, lastStatus = null;
 const statusEl = $("status");
 function setStatus(msg, cls = "") { statusEl.className = cls; statusEl.textContent = msg; }
@@ -466,6 +519,7 @@ function applyLang() {
   $("map").setAttribute("aria-label", t("map_label"));
   if (map.attributionControl._attributions) { for (const k in map.attributionControl._attributions) map.attributionControl.removeAttribution(k); }
   map.attributionControl.addAttribution(t("attrib"));
+  if (G && G.z) map.attributionControl.addAttribution(t("elev_attr"));
   const gh = location.hostname.match(/^([^.]+)\.github\.io$/);
   if (gh) { const repo = location.pathname.split("/").filter(Boolean)[0]; const url = `https://github.com/${gh[1]}${repo ? "/" + repo : ""}`; $("codeLink").innerHTML = t("code")(url); $("codeLink").hidden = false; }
   marker.setIcon(pinIcon());
@@ -475,7 +529,12 @@ function applyLang() {
 }
 document.querySelectorAll(".lang button").forEach(b => b.addEventListener("click", () => { LANG = b.dataset.lang; applyLang(); writeHash(); }));
 
+function slopeLabels() {
+  const g = $("maxGrade").value;
+  $("steepLbl").textContent = t("avoid_steep")(g); $("showSteepLbl").textContent = t("show_steep")(g);
+}
 function labels() {
+  slopeLabels();
   $("minOut").textContent = $("minutes").value + " min";
   $("legendEnd").textContent = $("minutes").value + " min";
   const v = +$("speed").value;
@@ -487,7 +546,9 @@ function schedule() { labels(); if (queued) return; queued = true; requestAnimat
 function compute() {
   if (!G) return;
   writeHash();
-  const T = $("minutes").value * 60, speed = +$("speed").value, avoid = $("steps").checked;
+  const T = $("minutes").value * 60, speed = +$("speed").value, avoid = $("steps").checked, hasZ = !!G.z;
+  const o = { speed, avoidSteps: avoid, slope: hasZ && $("slope").checked, maxGrade: hasZ && $("avoidSteep").checked ? +$("maxGrade").value / 100 : 0 };
+  const ref = { speed: REF_SPEED, avoidSteps: false, slope: false, maxGrade: 0 };
   const snap = nearestNode(G, grid, origin.lng, origin.lat, 8);
   if (snap.node < 0 || snap.dist > 400) {
     state = null; $("stats").innerHTML = ""; $("pill").innerHTML = "";
@@ -495,19 +556,40 @@ function compute() {
     draw(); return;
   }
   if (lastStatus && lastStatus[0] === "outside") { lastStatus = null; setStatus(""); }
-  const dAdj = dijkstra(G, snap.node, snap.dist / speed, speed, avoid, T);
-  const dRef = dijkstra(G, snap.node, snap.dist / REF_SPEED, REF_SPEED, false, T);
-  const reachAdj = collectReach(G, dAdj, T, speed, avoid), reachRef = collectReach(G, dRef, T, REF_SPEED, false);
-  const n = POI.n, inAdj = new Uint8Array(n), cA = new Array(8).fill(0), cR = new Array(8).fill(0), stA = [0, 0, 0, 0], stR = [0, 0, 0, 0];
+  const srcs = nodesNear(G, grid, origin.lng, origin.lat, Math.min(400, Math.max(60, snap.dist + 30)));
+  const dAdj = dijkstra(G, srcs, 0, o, T);
+  const dRef = dijkstra(G, srcs, 0, ref, T);
+  const reachAdj = collectReach(G, dAdj, T, o), reachRef = collectReach(G, dRef, T, ref);
+  // bocas de metro alcanzadas (con tus ajustes y con la referencia)
+  const nE = ENT.n, entA = new Uint8Array(nE), entR = new Uint8Array(nE);
+  for (let k = 0; k < nE; k++) {
+    const nd = ENT.node[k]; if (nd < 0) continue;
+    if (dAdj[nd] + ENT.snap[k] / speed <= T) entA[k] = 1;
+    if (dRef[nd] + ENT.snap[k] / REF_SPEED <= T) entR[k] = 1;
+  }
+  const n = POI.n, inAdj = new Uint8Array(n), usable = new Uint8Array(n), cA = new Array(8).fill(0), cR = new Array(8).fill(0), stA = [0, 0, 0, 0], stR = [0, 0, 0, 0], tyA = [0, 0, 0, 0], tyR = [0, 0, 0, 0];
   let stUsable = 0;
   for (let i = 0; i < n; i++) {
     const node = POI.node[i]; if (node < 0) continue;
     const c = POI.cat[i], w = POI.wc[i];
-    if (dAdj[node] + POI.snap[i] / speed <= T) { inAdj[i] = 1; cA[c]++; if (c === 6) { stA[w]++; if (!avoid || w === 1) stUsable++; } }
-    if (dRef[node] + POI.snap[i] / REF_SPEED <= T) { cR[c]++; if (c === 6) stR[w]++; }
+    let inA, inR;
+    const ents = c === 6 ? ENT.byStation.get(i) : null;
+    if (ents) { inA = ents.some(k => entA[k]); inR = ents.some(k => entR[k]); }
+    else { inA = dAdj[node] + POI.snap[i] / speed <= T; inR = dRef[node] + POI.snap[i] / REF_SPEED <= T; }
+    if (inA) {
+      inAdj[i] = 1; cA[c]++;
+      if (c === 6) {
+        stA[w]++; tyA[POI.sty[i]]++;
+        // sin escaleras: estación accesible y, si tiene bocas accesibles etiquetadas, llegar a una de ellas
+        const accEnts = ents ? ents.filter(k => ENT.wc[k] === 1) : [];
+        const ok = !avoid || (w === 1 && (!accEnts.length || accEnts.some(k => entA[k])));
+        if (ok) { usable[i] = 1; stUsable++; }
+      }
+    }
+    if (inR) { cR[c]++; if (c === 6) { stR[w]++; tyR[POI.sty[i]]++; } }
   }
-  state = { T, speed, avoid, reachAdj, reachRef, inAdj };
-  showStats(reachAdj, reachRef, cA, cR, stUsable, stA, stR);
+  state = { T, speed, avoid, o, reachAdj, reachRef, inAdj, usable, entA };
+  showStats(reachAdj, reachRef, cA, cR, stUsable, stA, stR, tyA, tyR);
   if (fitNext) { fitNext = false; fitToReach(); }
   draw();
 }
@@ -519,7 +601,7 @@ function fitToReach() {
   }
   if (s < nn) map.fitBounds([[s, w], [nn, e]], { padding: [16, 16], maxZoom: 17, animate: false });
 }
-function showStats(rA, rR, cA, cR, stUsable, stA, stR) {
+function showStats(rA, rR, cA, cR, stUsable, stA, stR, tyA, tyR) {
   const km = m => fmt(m / 1000), pct = rR.lengthM > 0 ? Math.round((rA.lengthM / rR.lengthM - 1) * 100) : 0;
   const cats = t("cats"), of = t("of"), amen = [0, 1, 2, 3, 4];
   const row = (c, label) => `<tr><td><span class="dot" style="background:${CAT_COLORS[c]}"></span>${label}</td><td>${cA[c]}</td><td class="ref">${of} ${cR[c]}</td></tr>`;
@@ -527,13 +609,14 @@ function showStats(rA, rR, cA, cR, stUsable, stA, stR) {
   const stRows = [1, 2, 3, 0].map(code => `<tr><td><span class="dot st" style="background:${STATION_COLORS[code]}"></span>${t("st_rows")[code]}</td><td>${stA[code]}</td><td class="ref">${of} ${stR[code]}</td></tr>`).join("");
   const sign = pct >= 0 ? "+" : "−";
   const nf = new Intl.NumberFormat(LANG === "es" ? "es-ES" : "en-GB");
-  $("pill").innerHTML = `<b>${km(rA.lengthM)} km</b>${pct ? ` <span class="d">${sign}${Math.abs(pct)} %</span>` : ""}<br>${nf.format(totA)} ${t("pill_am")} · ${cA[6]} ${t("pill_st")}`;
+  $("pill").innerHTML = `<b>${km(rA.lengthM)} km</b>${pct ? ` <span class="d">${sign}${Math.abs(pct)} %</span>` : ""}<br>${nf.format(totA)} ${t("pill_am")} · ${cA[6]} ${t(cA[6] === 1 ? "pill_st1" : "pill_st")}`;
   $("stats").innerHTML = `
     <p class="big"><b>${km(rA.lengthM)} km</b> ${t("reach")} <span class="note">(${sign}${Math.abs(pct)} % ${t("vs")} ${km(rR.lengthM)} km ${t("ref")})</span></p>
     <h2>${t("amen_h")}</h2>
     <table>${amen.map(c => row(c, cats[c])).join("")}<tr><td><b>${t("total")}</b></td><td><b>${totA}</b></td><td class="ref">${of} ${totR}</td></tr>
     ${row(5, cats[5])}${row(7, cats[7])}</table>
     <h2 style="margin-top:14px">${t("st_h")}: ${cA[6]} <span style="text-transform:none;letter-spacing:0">${of} ${cR[6]}</span></h2>
+    <p class="note" style="margin:0 0 4px">${[1, 2, 3].filter(k => tyR[k]).map(k => `${t("sty")[k]} ${tyA[k]} ${of} ${tyR[k]}`).join(" · ")}</p>
     <table>${stRows}</table>
     <p class="note" style="margin-top:6px">${state.avoid ? t("st_avoid")(stUsable) : t("st_hint")} ${t("figs")}</p>`;
 }
@@ -600,22 +683,38 @@ function draw() {
     ctx.lineWidth = width;
     bins.forEach((list, b) => { if (!list.length) return; ctx.beginPath(); ctx.strokeStyle = BIN_COLORS[b]; for (const it of list) trace(it); ctx.stroke(); });
 
+    if (G.egrade && $("showSteep").checked) {   // cuestas fuertes dentro del alcance de referencia, en morado
+      const lim = +$("maxGrade").value / 100;
+      ctx.beginPath(); ctx.strokeStyle = "#7b3fa0"; ctx.lineWidth = Math.max(2.5, width * 0.9);
+      for (const it of state.reachRef.items) if (!(G.eflag[it.e] & 1) && G.egrade[it.e] > lim && isVis(it.e)) traceE(it.e, false);
+      ctx.stroke();
+    }
     if ($("showSteps").checked) {   // tramos de escaleras dentro del alcance de referencia, en rojo
       ctx.beginPath(); ctx.strokeStyle = "#c1272d"; ctx.lineWidth = Math.max(2.5, width * 0.9);
       for (const it of state.reachRef.items) if ((G.eflag[it.e] & 1) && isVis(it.e)) traceE(it.e, false);
       ctx.stroke();
     }
     const showAm = $("showAm").checked, showSt = $("showSt").checked, showBn = $("showBn").checked, showBus = $("showBus").checked;
-    const dotScale = z >= 15 ? 1 : z === 14 ? 0.7 : 0.5, stR = z >= 14 ? 7 : 5;
+    const dotScale = z >= 15 ? 1 : z === 14 ? 0.7 : 0.5, stR = z >= 14 ? 8 : 5;
+    if (showSt && z >= 16) for (let k = 0; k < ENT.n; k++) {   // bocas de metro alcanzadas
+      if (!state.entA[k]) continue;
+      const x = X_(ENT.mx[k]), y = Y_(ENT.my[k]); if (x < -6 || y < -6 || x > size.x + 6 || y > size.y + 6) continue;
+      ctx.globalAlpha = !state.avoid || ENT.wc[k] === 1 ? 1 : 0.35;
+      ctx.fillStyle = STATION_COLORS[ENT.wc[k]]; ctx.fillRect(x - 4, y - 4, 8, 8);
+      ctx.lineWidth = 1.5; ctx.strokeStyle = "#15171a"; ctx.strokeRect(x - 4, y - 4, 8, 8); ctx.globalAlpha = 1;
+    }
     for (let i = 0; i < POI.n; i++) {
       if (!state.inAdj[i]) continue;
       const c = POI.cat[i], x = X_(POI.mx[i]), y = Y_(POI.my[i]);
       if (x < -10 || y < -10 || x > size.x + 10 || y > size.y + 10) continue;
       if (c === 6) {
         if (!showSt) continue;
-        const wc = POI.wc[i]; ctx.globalAlpha = !state.avoid || wc === 1 ? 1 : 0.35;
+        const wc = POI.wc[i]; ctx.globalAlpha = state.usable[i] ? 1 : 0.35;
         ctx.beginPath(); ctx.arc(x, y, stR, 0, 6.2832); ctx.fillStyle = STATION_COLORS[wc]; ctx.fill();
-        ctx.lineWidth = 2; ctx.strokeStyle = "#15171a"; ctx.stroke(); ctx.globalAlpha = 1;
+        ctx.lineWidth = 2; ctx.strokeStyle = "#15171a"; ctx.stroke();
+        const letter = t("sty_short")[POI.sty[i]];
+        if (letter && z >= 14) { ctx.fillStyle = wc === 0 ? "#15171a" : "#fff"; ctx.font = `700 ${letter.length > 1 ? 7 : 9}px ${font}`; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(letter, x, y + 0.5); }
+        ctx.globalAlpha = 1;
       } else if (c === 7 ? showBus : c === 5 ? showBn : showAm) {
         ctx.beginPath(); ctx.arc(x, y, (c === 5 ? 2.2 : 3) * dotScale, 0, 6.2832); ctx.fillStyle = CAT_COLORS[c]; ctx.globalAlpha = 0.9; ctx.fill(); ctx.globalAlpha = 1;
       }
@@ -662,7 +761,7 @@ function writeHash() {
   clearTimeout(hashTimer);
   hashTimer = setTimeout(() => {
     const q = new URLSearchParams({ lat: origin.lat.toFixed(5), lng: origin.lng.toFixed(5), min: $("minutes").value,
-      spd: (+$("speed").value).toFixed(2), st: $("steps").checked ? 1 : 0, z: map.getZoom(), lang: LANG });
+      spd: (+$("speed").value).toFixed(2), st: $("steps").checked ? 1 : 0, cu: $("slope").checked ? 1 : 0, pm: $("avoidSteep").checked ? $("maxGrade").value : 0, z: map.getZoom(), lang: LANG });
     try { history.replaceState(null, "", "#" + q.toString()); } catch (e) { /* algunos navegadores lo limitan */ }
   }, 250);
 }
@@ -674,6 +773,8 @@ function applyHash() {
   const m = num("min", 5, 30); if (m !== null) $("minutes").value = Math.round(m);
   const sp = num("spd", 0.8, 1.8); if (sp !== null) $("speed").value = sp;
   if (qs.get("st") === "1") $("steps").checked = true;
+  if (qs.get("cu") === "1") $("slope").checked = true;
+  const pm = num("pm", 3, 12); if (pm !== null) { $("avoidSteep").checked = true; $("maxGrade").value = Math.round(pm); }
   labels();
   const z = num("z", 12, 19);
   return { hasPlace: lat !== null && lng !== null, zoom: z };
@@ -681,7 +782,7 @@ function applyHash() {
 $("share").addEventListener("click", async () => {
   clearTimeout(hashTimer);
   const q = new URLSearchParams({ lat: origin.lat.toFixed(5), lng: origin.lng.toFixed(5), min: $("minutes").value,
-    spd: (+$("speed").value).toFixed(2), st: $("steps").checked ? 1 : 0, z: map.getZoom(), lang: LANG });
+    spd: (+$("speed").value).toFixed(2), st: $("steps").checked ? 1 : 0, cu: $("slope").checked ? 1 : 0, pm: $("avoidSteep").checked ? $("maxGrade").value : 0, z: map.getZoom(), lang: LANG });
   try { history.replaceState(null, "", "#" + q.toString()); } catch (e) { /* nada */ }
   const url = location.href;
   if (navigator.share) { try { await navigator.share({ title: document.title, text: t("share_text"), url }); return; } catch (e) { if (e && e.name === "AbortError") return; } }
@@ -769,8 +870,9 @@ $("locate").addEventListener("click", () => {
 
 // ================= eventos =================
 ["minutes", "speed"].forEach(id => $(id).addEventListener("input", schedule));
-$("steps").addEventListener("change", schedule);
-["showAm", "showSt", "showBn", "showBus", "showSteps"].forEach(id => $(id).addEventListener("change", draw));
+["steps", "slope", "avoidSteep"].forEach(id => $(id).addEventListener("change", schedule));
+$("maxGrade").addEventListener("input", () => { slopeLabels(); if ($("avoidSteep").checked) schedule(); else draw(); });
+["showAm", "showSt", "showBn", "showBus", "showSteps", "showSteep"].forEach(id => $(id).addEventListener("change", draw));
 map.on("click", e => { origin = e.latlng; marker.setLatLng(origin); schedule(); });
 marker.on("drag", () => { origin = marker.getLatLng(); schedule(); });
 map.on("moveend zoomend resize", () => { draw(); if (G) writeHash(); });
@@ -781,10 +883,13 @@ applyLang();
 lastStatus = ["loading", "busy"]; setStatus(t("loading"), "busy");
 (async function load() {
   try {
-    const [gBytes, xBytes] = await Promise.all([fetchBytes("data/graph.bin.gz").then(gunzip), fetchBytes("data/extra.json.gz").then(gunzip)]);
+    const [gBytes, xBytes, zBytes] = await Promise.all([fetchBytes("data/graph.bin.gz").then(gunzip), fetchBytes("data/extra.json.gz").then(gunzip),
+      fetchBytes("data/elev.bin.gz").then(gunzip).catch(() => null)]);   // la elevación es opcional
     lastStatus = ["preparing", "busy"]; setStatus(t("preparing"), "busy");
     await new Promise(r => setTimeout(r, 0));
     G = parseGraph(gBytes); grid = buildGrid(G); EG = buildEdgeGrid(G);
+    if (zBytes && zBytes.length === 2 * G.nN) { addElevation(G, new Int16Array(zBytes.buffer.slice(zBytes.byteOffset, zBytes.byteOffset + zBytes.byteLength))); map.attributionControl.addAttribution(t("elev_attr")); }
+    else document.body.classList.add("noelev");
     X = JSON.parse(new TextDecoder().decode(xBytes));
     if (X.date) { const [y, m, d] = X.date.split("-"); DATA_DATE = `${d}/${m}/${y}`; $("limits").textContent = t("limits")(DATA_DATE); }
     const toRing = flat => { const m = new Float64Array(flat.length); let x0 = 1, y0 = 1, x1 = 0, y1 = 0;
@@ -799,6 +904,13 @@ lastStatus = ["loading", "busy"]; setStatus(t("loading"), "busy");
       const lon = p[0] / 1e5, lat = p[1] / 1e5, r = X.pn ? { node: X.pn[i], dist: X.pd[i] } : nearestNode(G, grid, lon, lat, 6);
       POI.cat[i] = p[2]; POI.wc[i] = p[3]; POI.name[i] = p[4]; POI.lon[i] = lon; POI.lat[i] = lat; POI.mx[i] = mercX(lon); POI.my[i] = mercY(lat);
       POI.node[i] = r.node; POI.snap[i] = r.node < 0 ? Infinity : r.dist;
+    });
+    POI.sty = new Uint8Array(n); for (const [i, ty] of X.sty || []) POI.sty[i] = ty;   // 1 Metro, 2 Cercanías, 3 Metro Ligero
+    const ents = X.ent || [];   // bocas de metro: [lon e5, lat e5, wheelchair, estación, nodo, distancia m]
+    ENT = { n: ents.length, wc: new Uint8Array(ents.length), node: new Int32Array(ents.length), snap: new Float32Array(ents.length), mx: new Float64Array(ents.length), my: new Float64Array(ents.length), byStation: new Map() };
+    ents.forEach((en, k) => {
+      ENT.wc[k] = en[2]; ENT.node[k] = en[4]; ENT.snap[k] = en[5]; ENT.mx[k] = mercX(en[0] / 1e5); ENT.my[k] = mercY(en[1] / 1e5);
+      if (!ENT.byStation.has(en[3])) ENT.byStation.set(en[3], []); ENT.byStation.get(en[3]).push(k);
     });
     const [W, S, E, N] = X.bbox;
     map.setMaxBounds([[S - 0.02, W - 0.03], [N + 0.02, E + 0.03]]);

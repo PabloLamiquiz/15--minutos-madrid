@@ -6,12 +6,12 @@
 <title>15 minutos. ¿Para quién? · Madrid</title>
 <meta name="description" content="Mapa interactivo de Madrid: hasta dónde llegas andando en 15 minutos según tu velocidad y si puedes usar escaleras. Los mismos 15 minutos no significan lo mismo para todo el mundo.">
 <meta name="theme-color" content="#1d6f8c">
-<!-- Vista previa al compartir (LinkedIn, WhatsApp, X…). og:image tiene que ser una dirección completa:
-     cambia TU-USUARIO por tu nombre de usuario de GitHub. -->
+<!-- Vista previa al compartir (LinkedIn, WhatsApp, X…). og:image tiene que ser una dirección completa. -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="15 minutos. ¿Para quién? · Madrid">
 <meta property="og:description" content="Los mismos 15 minutos a pie no llegan igual de lejos para todos. Cambia la velocidad, evita escaleras y mira qué queda a tu alcance en Madrid.">
-<meta property="og:image" content="https://TU-USUARIO.github.io/15-minutos-madrid/og.png">
+<meta property="og:image" content="https://pablolamiquiz.github.io/15--minutos-madrid/og.png">
+<meta property="og:url" content="https://pablolamiquiz.github.io/15--minutos-madrid/">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:locale" content="es_ES">
@@ -35,16 +35,6 @@
     --f-display: "Fraunces", Georgia, serif; --f-body: "Public Sans", -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
     color-scheme: light;
   }
-  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-    --ink:#e9e7e2; --muted:#a3a8ad; --paper:#16191c; --panel:#1c2024; --line:#343a40; --teal:#6cc0dc; --err:#ff8a7e; --field:#24292e;
-    --map-bg:#22262a; --map-street:#3a3f45; --map-street-edge:#2b2f34; --map-major:#4a4a40; --map-major-edge:#3a392f;
-    --map-park:#2b3a2a; --map-water:#1f3644; --map-rail:#6b6b6b; --map-motor:#5a4a33; --map-label:#c9cdd1; --map-park-label:#9cc58f; --map-halo:rgba(20,22,25,.85);
-    --ref:rgba(215,218,222,.55); color-scheme: dark; } }
-  :root[data-theme="dark"] {
-    --ink:#e9e7e2; --muted:#a3a8ad; --paper:#16191c; --panel:#1c2024; --line:#343a40; --teal:#6cc0dc; --err:#ff8a7e; --field:#24292e;
-    --map-bg:#22262a; --map-street:#3a3f45; --map-street-edge:#2b2f34; --map-major:#4a4a40; --map-major-edge:#3a392f;
-    --map-park:#2b3a2a; --map-water:#1f3644; --map-rail:#6b6b6b; --map-motor:#5a4a33; --map-label:#c9cdd1; --map-park-label:#9cc58f; --map-halo:rgba(20,22,25,.85);
-    --ref:rgba(215,218,222,.55); color-scheme: dark; }
   * { box-sizing: border-box; }
   html, body { height: 100%; margin: 0; }
   body { display: flex; background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: 14px; }
@@ -53,7 +43,7 @@
   h1 { font-family: var(--f-display); font-weight: 700; font-size: 34px; line-height: 1; margin: 0; letter-spacing: -.01em; }
   h1 em { color: var(--teal); font-style: italic; font-weight: 500; }
   h1 small { display: block; font-family: var(--f-body); font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-top: 8px; }
-  .lang { display: flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; flex: none; }
+  .lang { display: flex; border: 1px solid var(--line); border-radius: 2px; overflow: hidden; flex: none; }
   .lang button { border: 0; background: transparent; color: var(--muted); font: 600 12px var(--f-body); padding: 5px 8px; cursor: pointer; }
   .lang button[aria-pressed="true"] { background: var(--teal); color: var(--panel); }
   .note { font-size: 12px; line-height: 1.5; color: var(--muted); margin: 0; }
@@ -64,7 +54,7 @@
   .checks { display: grid; gap: 4px; }
   .checks label { display: flex; gap: 8px; align-items: center; cursor: pointer; }
   input[type=checkbox] { accent-color: var(--teal); width: 16px; height: 16px; margin: 0; }
-  #legend { height: 10px; border-radius: 5px; margin-top: 6px; }
+  #legend { height: 8px; margin-top: 6px; }
   #legendLabels { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
   table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
   td { padding: 4px 0; border-bottom: 1px solid var(--line); }
@@ -83,12 +73,12 @@
   @media (prefers-reduced-motion: reduce) { #status.busy::before { animation: none; } }
   /* buscador */
   .search { position: relative; display: flex; gap: 6px; }
-  .search input { flex: 1; min-width: 0; font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--field); color: var(--ink); }
+  .search input { flex: 1; min-width: 0; font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 2px; background: var(--field); color: var(--ink); }
   .search input:focus { outline: 2px solid var(--teal); outline-offset: -1px; }
-  .btn { font: 600 13px var(--f-body); padding: 7px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--field); color: var(--ink); cursor: pointer; white-space: nowrap; }
+  .btn { font: 600 13px var(--f-body); padding: 7px 10px; border: 1px solid var(--line); border-radius: 2px; background: var(--field); color: var(--ink); cursor: pointer; white-space: nowrap; }
   .btn:hover { border-color: var(--teal); }
   .btn.primary { background: var(--teal); border-color: var(--teal); color: var(--panel); }
-  #results { position: absolute; top: calc(100% + 4px); left: 0; right: 0; margin: 0; padding: 4px 0; list-style: none; background: var(--field); border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 6px 20px rgba(0,0,0,.15); z-index: 1001; max-height: 280px; overflow-y: auto; }
+  #results { position: absolute; top: calc(100% + 4px); left: 0; right: 0; margin: 0; padding: 4px 0; list-style: none; background: var(--field); border: 1px solid var(--line); border-radius: 2px; box-shadow: 0 6px 20px rgba(0,0,0,.15); z-index: 1001; max-height: 280px; overflow-y: auto; }
   #results li { padding: 7px 10px; cursor: pointer; display: flex; justify-content: space-between; gap: 8px; }
   #results li[aria-selected="true"], #results li:hover { background: var(--paper); }
   #results li small { color: var(--muted); flex: none; }
@@ -100,13 +90,15 @@
   .leaflet-container { background: var(--map-bg); font-family: var(--f-body); }
   .leaflet-control-attribution { background: var(--panel) !important; color: var(--muted) !important; font-size: 10px; }
   .leaflet-control-attribution a { color: var(--teal) !important; }
+  .leaflet-bar, .leaflet-bar a, .leaflet-touch .leaflet-bar a:first-child, .leaflet-touch .leaflet-bar a:last-child, .leaflet-bar a:first-child, .leaflet-bar a:last-child { border-radius: 2px !important; }
   .leaflet-bar a { background: var(--panel); color: var(--ink); border-bottom-color: var(--line); }
   .pin { width: 22px; height: 22px; border-radius: 50%; background: var(--teal); border: 3px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.45); cursor: grab; }
   a { color: var(--teal); }
   :focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
-  .pill { display: none; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px; font-size: 12px; line-height: 1.35; box-shadow: 0 1px 6px rgba(0,0,0,.25); font-variant-numeric: tabular-nums; }
+  .pill { display: none; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 2px; padding: 6px 10px; font-size: 12px; line-height: 1.35; box-shadow: 0 1px 6px rgba(0,0,0,.25); font-variant-numeric: tabular-nums; }
   .pill b { font-family: var(--f-display); font-size: 16px; }
   .pill .d { color: var(--muted); }
+  .keyline { display: inline-block; width: 18px; height: 3px; background: #c1272d; }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   @media (max-width: 760px) {
     body { flex-direction: column-reverse; height: 100dvh; }
@@ -160,6 +152,7 @@
     <label><input type="checkbox" id="showSt" checked> <span data-t="show_st">Estaciones</span></label>
     <label><input type="checkbox" id="showBus"> <span data-t="show_bus">Paradas de bus</span></label>
     <label><input type="checkbox" id="showBn"> <span data-t="show_bn">Bancos</span></label>
+    <label><input type="checkbox" id="showSteps"> <span data-t="show_steps">Escaleras</span> <span class="keyline" aria-hidden="true"></span></label>
   </div>
 
   <p class="note" id="limits"></p>
@@ -189,7 +182,7 @@ const I18N = {
     time: "Tiempo", speed: "Velocidad al caminar",
     speed_note: 'De 0,8 a 1,8 m/s, el rango del metaestudio de <a href="https://www.mdpi.com/2818476" target="_blank" rel="noopener">Giannoulaki y Christoforou (2024)</a>.',
     steps: "Evitar escaleras", share: "Compartir esta vista", copy: "Copiar enlace", copied: "Enlace copiado.", copy_fail: "Copia la dirección de la barra del navegador.",
-    show: "Mostrar en el mapa", show_am: "Servicios", show_st: "Estaciones", show_bus: "Paradas de bus", show_bn: "Bancos",
+    show: "Mostrar en el mapa", show_am: "Servicios", show_st: "Estaciones", show_bus: "Paradas de bus", show_bn: "Bancos", show_steps: "Escaleras",
     cats: ["Alimentación", "Salud", "Educación", "Parques y juegos", "Cafés y restaurantes", "Bancos", "Estaciones", "Paradas de bus"],
     st_rows: ["Sin etiquetar", "Accesibles", "Acceso limitado", "No accesibles"],
     loading: "Cargando el mapa de Madrid…", preparing: "Preparando la red de calles…",
@@ -198,7 +191,7 @@ const I18N = {
     locating: "Buscando tu ubicación…", loc_out: "Tu ubicación queda fuera de la zona cubierta (7 km alrededor de Sol).", loc_err: "No se pudo obtener tu ubicación.",
     reach: "de calles al alcance", vs: "frente a", ref: "de referencia", of: "de",
     amen_h: "Servicios al alcance", total: "Total", st_h: "Estaciones al alcance",
-    st_avoid: n => `Evitando escaleras, solo ${n} estaciones son utilizables sin escalones; el resto se ven atenuadas.`,
+    st_avoid: n => n === 1 ? "Evitando escaleras, solo 1 estación es utilizable sin escalones; el resto se ven atenuadas." : `Evitando escaleras, solo ${n} estaciones son utilizables sin escalones; el resto se ven atenuadas.`,
     st_hint: "Marca «Evitar escaleras» para atenuar las estaciones no accesibles.",
     figs: "La primera cifra usa tus ajustes; «de» es la referencia.",
     kinds: ["estación", "parque", "calle"], no_results: "Sin resultados", pill_am: "servicios", pill_st: "estaciones",
@@ -221,7 +214,7 @@ const I18N = {
     time: "Time", speed: "Walking speed",
     speed_note: 'From 0.8 to 1.8 m/s, the range in the meta-study by <a href="https://www.mdpi.com/2818476" target="_blank" rel="noopener">Giannoulaki &amp; Christoforou (2024)</a>.',
     steps: "Avoid stairs", share: "Share this view", copy: "Copy link", copied: "Link copied.", copy_fail: "Copy the address from your browser's address bar.",
-    show: "Show on the map", show_am: "Amenities", show_st: "Stations", show_bus: "Bus stops", show_bn: "Benches",
+    show: "Show on the map", show_am: "Amenities", show_st: "Stations", show_bus: "Bus stops", show_bn: "Benches", show_steps: "Stairs",
     cats: ["Groceries", "Health", "Education", "Parks & play", "Cafés & eating", "Benches", "Stations", "Bus stops"],
     st_rows: ["Not tagged", "Step-free", "Limited access", "Not step-free"],
     loading: "Loading the map of Madrid…", preparing: "Preparing the street network…",
@@ -230,7 +223,7 @@ const I18N = {
     locating: "Finding your location…", loc_out: "Your location is outside the covered area (7 km around Puerta del Sol).", loc_err: "Could not get your location.",
     reach: "of streets within reach", vs: "vs.", ref: "reference", of: "of",
     amen_h: "Amenities within reach", total: "Total", st_h: "Stations within reach",
-    st_avoid: n => `Avoiding stairs, only ${n} stations are usable step-free; the others are faded.`,
+    st_avoid: n => n === 1 ? "Avoiding stairs, only 1 station is usable step-free; the others are faded." : `Avoiding stairs, only ${n} stations are usable step-free; the others are faded.`,
     st_hint: "Tick “Avoid stairs” to fade stations that are not step-free.",
     figs: "The first number uses your settings; “of” is the reference.",
     kinds: ["station", "park", "street"], no_results: "No results", pill_am: "amenities", pill_st: "stations",
@@ -607,6 +600,11 @@ function draw() {
     ctx.lineWidth = width;
     bins.forEach((list, b) => { if (!list.length) return; ctx.beginPath(); ctx.strokeStyle = BIN_COLORS[b]; for (const it of list) trace(it); ctx.stroke(); });
 
+    if ($("showSteps").checked) {   // tramos de escaleras dentro del alcance de referencia, en rojo
+      ctx.beginPath(); ctx.strokeStyle = "#c1272d"; ctx.lineWidth = Math.max(2.5, width * 0.9);
+      for (const it of state.reachRef.items) if ((G.eflag[it.e] & 1) && isVis(it.e)) traceE(it.e, false);
+      ctx.stroke();
+    }
     const showAm = $("showAm").checked, showSt = $("showSt").checked, showBn = $("showBn").checked, showBus = $("showBus").checked;
     const dotScale = z >= 15 ? 1 : z === 14 ? 0.7 : 0.5, stR = z >= 14 ? 7 : 5;
     for (let i = 0; i < POI.n; i++) {
@@ -772,13 +770,10 @@ $("locate").addEventListener("click", () => {
 // ================= eventos =================
 ["minutes", "speed"].forEach(id => $(id).addEventListener("input", schedule));
 $("steps").addEventListener("change", schedule);
-["showAm", "showSt", "showBn", "showBus"].forEach(id => $(id).addEventListener("change", draw));
+["showAm", "showSt", "showBn", "showBus", "showSteps"].forEach(id => $(id).addEventListener("change", draw));
 map.on("click", e => { origin = e.latlng; marker.setLatLng(origin); schedule(); });
 marker.on("drag", () => { origin = marker.getLatLng(); schedule(); });
 map.on("moveend zoomend resize", () => { draw(); if (G) writeHash(); });
-const mq = matchMedia("(prefers-color-scheme: dark)");
-const retheme = () => { readTheme(); draw(); };
-mq.addEventListener ? mq.addEventListener("change", retheme) : mq.addListener(retheme);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => draw());   // rótulos con la tipografía buena
 
 // ================= carga =================

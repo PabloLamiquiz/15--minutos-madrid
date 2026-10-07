@@ -4,13 +4,13 @@
 
 Mapa interactivo que muestra hasta dónde llegas andando por Madrid en un tiempo dado, y cómo cambia según tu velocidad y si puedes usar escaleras. Los mismos 15 minutos no llegan igual de lejos para todo el mundo.
 
-**Pruébalo:** https://TU-USUARIO.github.io/15-minutos-madrid/
+**Pruébalo:** https://pablolamiquiz.github.io/15--minutos-madrid/
 
 ## Qué hace
 
 - Haz clic en el mapa, arrastra el punto o busca una calle, estación o parque.
 - Ajusta el tiempo (5 a 30 min) y la velocidad al caminar (0,8 a 1,8 m/s, el rango del metaestudio de [Giannoulaki y Christoforou, 2024](https://www.mdpi.com/2818476)).
-- Marca «Evitar escaleras» para quitar los tramos de escaleras mapeados.
+- Marca «Evitar escaleras» para quitar los tramos de escaleras mapeados, y «Escaleras» para verlos en rojo en el mapa.
 - En color, las calles que alcanzas con tus ajustes; en gris, las que alcanzaría en el mismo tiempo alguien a 1,4 m/s que puede usar escaleras.
 - El panel cuenta servicios (alimentación, salud, educación, parques, cafés y restaurantes), bancos, paradas de bus y estaciones al alcance, y cuántas estaciones están etiquetadas como accesibles.
 - «Compartir esta vista» guarda el punto y los ajustes en la dirección, así que el enlace abre exactamente lo que estabas viendo.
